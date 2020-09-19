@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 18 Sep 2020 pada 17.07
+-- Waktu pembuatan: 19 Sep 2020 pada 11.57
 -- Versi server: 10.4.11-MariaDB
 -- Versi PHP: 7.4.6
 
@@ -74,6 +74,23 @@ CREATE TABLE `r_calon` (
 CREATE TABLE `r_goldarah` (
   `rgoldarah_id` int(11) NOT NULL,
   `rgoldarah_kode` char(2) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `r_image`
+--
+
+CREATE TABLE `r_image` (
+  `rimage_id` bigint(20) NOT NULL,
+  `rtfile_id` bigint(20) NOT NULL,
+  `rimage_caption` text NOT NULL,
+  `rimage_desk` text NOT NULL,
+  `rimage_tgldibuat` date NOT NULL,
+  `rimage_tglupload` datetime NOT NULL,
+  `rimage_nmfile` text NOT NULL,
+  `rimage_folder` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -168,12 +185,35 @@ CREATE TABLE `r_statakun` (
 -- --------------------------------------------------------
 
 --
+-- Struktur dari tabel `r_statimage`
+--
+
+CREATE TABLE `r_statimage` (
+  `rstatimage_kode` char(2) NOT NULL,
+  `rstatimage_desk` varchar(35) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
 -- Struktur dari tabel `r_statkawin`
 --
 
 CREATE TABLE `r_statkawin` (
   `rstatkawin_kode` char(2) NOT NULL,
   `rstatkawin_nama` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `r_tfile`
+--
+
+CREATE TABLE `r_tfile` (
+  `rtfile_id` bigint(20) NOT NULL,
+  `rtfile_ext` varchar(4) NOT NULL,
+  `rtfile_desk` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -202,6 +242,31 @@ CREATE TABLE `r_userakun` (
 CREATE TABLE `r_wn` (
   `rwn_kode` char(3) NOT NULL,
   `rwn_nama` varchar(25) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `t_calonimage`
+--
+
+CREATE TABLE `t_calonimage` (
+  `rimage_id` bigint(20) NOT NULL,
+  `rcalon_ide` bigint(20) NOT NULL,
+  `tcalonimage_tglmap` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+
+--
+-- Struktur dari tabel `t_persimage`
+--
+
+CREATE TABLE `t_persimage` (
+  `rimage_id` bigint(20) NOT NULL,
+  `rpersonal_id` bigint(20) NOT NULL,
+  `rstatimage_kode` char(2) NOT NULL,
+  `tpersimage_tglmap` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 --
@@ -233,6 +298,13 @@ ALTER TABLE `r_calon`
 --
 ALTER TABLE `r_goldarah`
   ADD PRIMARY KEY (`rgoldarah_id`);
+
+--
+-- Indeks untuk tabel `r_image`
+--
+ALTER TABLE `r_image`
+  ADD PRIMARY KEY (`rimage_id`),
+  ADD KEY `rtfile_id` (`rtfile_id`);
 
 --
 -- Indeks untuk tabel `r_jk`
@@ -279,10 +351,22 @@ ALTER TABLE `r_statakun`
   ADD PRIMARY KEY (`rstatakun_kode`);
 
 --
+-- Indeks untuk tabel `r_statimage`
+--
+ALTER TABLE `r_statimage`
+  ADD PRIMARY KEY (`rstatimage_kode`);
+
+--
 -- Indeks untuk tabel `r_statkawin`
 --
 ALTER TABLE `r_statkawin`
   ADD PRIMARY KEY (`rstatkawin_kode`);
+
+--
+-- Indeks untuk tabel `r_tfile`
+--
+ALTER TABLE `r_tfile`
+  ADD PRIMARY KEY (`rtfile_id`);
 
 --
 -- Indeks untuk tabel `r_userakun`
@@ -298,6 +382,23 @@ ALTER TABLE `r_userakun`
 --
 ALTER TABLE `r_wn`
   ADD PRIMARY KEY (`rwn_kode`);
+
+--
+-- Indeks untuk tabel `t_calonimage`
+--
+ALTER TABLE `t_calonimage`
+  ADD PRIMARY KEY (`rimage_id`,`rcalon_ide`),
+  ADD KEY `rimage_id` (`rimage_id`),
+  ADD KEY `rcalon_ide` (`rcalon_ide`);
+
+--
+-- Indeks untuk tabel `t_persimage`
+--
+ALTER TABLE `t_persimage`
+  ADD PRIMARY KEY (`rimage_id`),
+  ADD KEY `rimage_id` (`rimage_id`),
+  ADD KEY `rpersonal_id` (`rpersonal_id`),
+  ADD KEY `rstatimage_kode` (`rstatimage_kode`);
 
 --
 -- AUTO_INCREMENT untuk tabel yang dibuang
@@ -323,31 +424,36 @@ ALTER TABLE `r_personal`
 -- Ketidakleluasaan untuk tabel `r_agama`
 --
 ALTER TABLE `r_agama`
-  ADD CONSTRAINT `fk_ragama` FOREIGN KEY (`ragama_kode`) REFERENCES `r_personal` (`ragama_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_ragama_calon` FOREIGN KEY (`ragama_kode`) REFERENCES `r_personal` (`ragama_kode`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_ragama_personal` FOREIGN KEY (`ragama_kode`) REFERENCES `r_personal` (`ragama_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `r_goldarah`
 --
 ALTER TABLE `r_goldarah`
-  ADD CONSTRAINT `fk_rgoldarah` FOREIGN KEY (`rgoldarah_id`) REFERENCES `r_personal` (`rgoldarah_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_rgoldarah_calon` FOREIGN KEY (`rgoldarah_id`) REFERENCES `r_calon` (`rgoldarah_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rgoldarah_personal` FOREIGN KEY (`rgoldarah_id`) REFERENCES `r_personal` (`rgoldarah_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `r_jk`
 --
 ALTER TABLE `r_jk`
-  ADD CONSTRAINT `fk_jk` FOREIGN KEY (`rjk_kode`) REFERENCES `r_personal` (`rjk_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_rjk_personal` FOREIGN KEY (`rjk_kode`) REFERENCES `r_personal` (`rjk_kode`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fl_rjk_calon` FOREIGN KEY (`rjk_kode`) REFERENCES `r_calon` (`rjk_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `r_kerja`
 --
 ALTER TABLE `r_kerja`
-  ADD CONSTRAINT `fk_rkerja` FOREIGN KEY (`rkerja_id`) REFERENCES `r_personal` (`rkerja_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_rkerja_calon` FOREIGN KEY (`rkerja_id`) REFERENCES `r_calon` (`rkerja_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rkerja_personal` FOREIGN KEY (`rkerja_id`) REFERENCES `r_personal` (`rkerja_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `r_kota`
 --
 ALTER TABLE `r_kota`
-  ADD CONSTRAINT `fk_rkota` FOREIGN KEY (`rkota_id`) REFERENCES `r_personal` (`rkota_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_rkota_calon` FOREIGN KEY (`rkota_id`) REFERENCES `r_calon` (`rkota_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rkota_personal` FOREIGN KEY (`rkota_id`) REFERENCES `r_personal` (`rkota_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `r_personal`
@@ -371,19 +477,43 @@ ALTER TABLE `r_statakun`
 -- Ketidakleluasaan untuk tabel `r_statkawin`
 --
 ALTER TABLE `r_statkawin`
-  ADD CONSTRAINT `fk_rstatkawin` FOREIGN KEY (`rstatkawin_kode`) REFERENCES `r_personal` (`rstatkawin_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_rstatkawin_calon` FOREIGN KEY (`rstatkawin_kode`) REFERENCES `r_calon` (`rstatkawin_kode`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rstatkawin_personal` FOREIGN KEY (`rstatkawin_kode`) REFERENCES `r_personal` (`rstatkawin_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `r_tfile`
+--
+ALTER TABLE `r_tfile`
+  ADD CONSTRAINT `fk_rtfileid_rimage` FOREIGN KEY (`rtfile_id`) REFERENCES `r_image` (`rtfile_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `r_userakun`
 --
 ALTER TABLE `r_userakun`
-  ADD CONSTRAINT `fk_ruserakun` FOREIGN KEY (`rpersonal_id`) REFERENCES `r_personal` (`rpersonal_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_ruserakun_calon` FOREIGN KEY (`ruserakun_nama`) REFERENCES `r_calon` (`ruserakun_nama`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_ruserakun_personal` FOREIGN KEY (`rpersonal_id`) REFERENCES `r_personal` (`rpersonal_id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Ketidakleluasaan untuk tabel `r_wn`
 --
 ALTER TABLE `r_wn`
-  ADD CONSTRAINT `fk_rwn` FOREIGN KEY (`rwn_kode`) REFERENCES `r_personal` (`rwn_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
+  ADD CONSTRAINT `fk_rwn_calon` FOREIGN KEY (`rwn_kode`) REFERENCES `r_calon` (`rwn_kode`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rwn_personal` FOREIGN KEY (`rwn_kode`) REFERENCES `r_personal` (`rwn_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `t_calonimage`
+--
+ALTER TABLE `t_calonimage`
+  ADD CONSTRAINT `fk_image_id_rimage` FOREIGN KEY (`rimage_id`) REFERENCES `r_image` (`rimage_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rcalon_id_rcalon` FOREIGN KEY (`rcalon_ide`) REFERENCES `r_calon` (`rcalon_id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Ketidakleluasaan untuk tabel `t_persimage`
+--
+ALTER TABLE `t_persimage`
+  ADD CONSTRAINT `fk_rimageid_rimage` FOREIGN KEY (`rimage_id`) REFERENCES `r_image` (`rimage_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rpersonalid_rpersonal` FOREIGN KEY (`rpersonal_id`) REFERENCES `r_personal` (`rpersonal_id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_rstatimagekode_rstatimage` FOREIGN KEY (`rstatimage_kode`) REFERENCES `r_statimage` (`rstatimage_kode`) ON DELETE CASCADE ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
