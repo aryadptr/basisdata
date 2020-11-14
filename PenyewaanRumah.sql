@@ -1,3 +1,7 @@
+CREATE DATABASE PenyewaanRumahBasisData;
+
+USE PenyewaanRumahBasisData;
+
 CREATE TABLE branch (
   branchNo char(5) NOT NULL,
   street varchar(35) DEFAULT NULL,
